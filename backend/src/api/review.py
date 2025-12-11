@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
-from ..services.huggingface import generate_review
-from ..services.rag import store_code_embedding, retrieve_similar_code
+from ..services.openai import generate_review
+from ..services.rag import store_code_embedding, retrieve_similar_code, store_message_with_embedding
 import uuid
 from pygments.lexers import guess_lexer
 
@@ -15,11 +15,8 @@ async def review_code_text(code: str = Form(...)):
     if not code.strip():
         raise HTTPException(status_code=400, detail="Code cannot be empty")
     
-    # Generate unique ID
-    code_id = str(uuid.uuid4())
-    
-    # Store in Pinecone for future retrieval
-    store_code_embedding(code_id, code)
+    # Persist message + embedding (creates a conversation if needed)
+    msg_id, pine_id = await store_message_with_embedding(code, conversation_id=None, user_id=None, role="user")
     
     # Retrieve similar code for context (optional)
     similar = retrieve_similar_code(code, top_k=3)
@@ -28,8 +25,8 @@ async def review_code_text(code: str = Form(...)):
     # Generate review
     prompt = f"Review the following code. Similar code examples:\n{context}\n\nCode to review:\n{code}\n\nProvide a detailed review:"
     review = generate_review(code, prompt)
-    
-    return JSONResponse(content={"review": review, "code_id": code_id})
+
+    return JSONResponse(content={"review": review, "code_id": pine_id, "message_id": msg_id})
 
 @router.post("/review/file")
 async def review_code_file(file: UploadFile = File(...)):
@@ -38,12 +35,12 @@ async def review_code_file(file: UploadFile = File(...)):
     """
     supported_extensions = [
         '.py', '.js', '.tsx', '.ts', '.tsx', '.java', '.kt', '.cpp', '.c', '.csharp',
-        '.go', '.rs', '.php', '.rb', '.vue', '.swift', '.m', '.scala', '.sh', '.r'
+        '.go', '.rs', '.php', '.rb', '.vue', '.swift', '.m', '.scala', '.sh', '.r', '.sql'
     ]
     
     supported_languages = [
         'python', 'javascript', 'typescript', 'java', 'kotlin', 'cpp', 'c', 'csharp',
-        'go', 'rust', 'php', 'ruby', 'vue', 'swift', 'objective-c', 'scala', 'shell', 'r'
+        'go', 'rust', 'php', 'ruby', 'vue', 'swift', 'objective-c', 'scala', 'shell', 'r', 'sql'
     ]
     
     supported_frameworks = [
