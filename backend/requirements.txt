@@ -1,0 +1,32 @@
+# --- FastAPI core ---
+fastapi
+uvicorn[standard]
+gunicorn
+
+# --- Pydantic v2 & settings ---
+pydantic
+pydantic-settings
+
+# --- AI / HuggingFace ---
+transformers
+accelerate
+huggingface-hub
+sentence-transformers
+sentencepiece
+protobuf
+
+# If using PyTorch CPU (safe for 3.14; GPU wheels depend on OS/CUDA)
+torch
+
+# --- Vector DB (Pinecone) ---
+pinecone
+pinecone-plugin-interface
+
+# --- Background tasks / async tools ---
+httpx
+aiofiles
+
+# Optional but commonly needed
+python-dotenv
+orjson
+pygments
