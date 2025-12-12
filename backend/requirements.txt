@@ -31,3 +31,18 @@ python-dotenv
 orjson
 pygments
 openai
+
+channels-redis
+sendgrid
+
+# --- Database ---
+sqlalchemy
+alembic
+
+# --- Auth ---
+python-jose[cryptography]
+passlib[bcrypt]
+redis
+authlib
+pyjwt
+itsdangerous

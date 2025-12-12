@@ -5,9 +5,9 @@ from ..services.rag import store_code_embedding, retrieve_similar_code, store_me
 import uuid
 from pygments.lexers import guess_lexer
 
-router = APIRouter()
+review = APIRouter()
 
-@router.post("/review/text")
+@review.post("/review/text")
 async def review_code_text(code: str = Form(...)):
     """
     Review code provided as text.
@@ -28,7 +28,7 @@ async def review_code_text(code: str = Form(...)):
 
     return JSONResponse(content={"review": review, "code_id": pine_id, "message_id": msg_id})
 
-@router.post("/review/file")
+@review.post("/review/file")
 async def review_code_file(file: UploadFile = File(...)):
     """
     Review code from uploaded file.
