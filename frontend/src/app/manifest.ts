@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: "Kaiflow",
+        name: "kaiflow",
         description: "Your AI-powered code review assistant",
         start_url: "/",
         display: "standalone",

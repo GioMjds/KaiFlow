@@ -1,7 +1,7 @@
 import "../globals.css";
-import Providers from "@/providers/tanstack-query";
 import type { Metadata } from "next";
 import { Arimo } from "next/font/google";
+import Providers from "@/providers/tanstack-query";
 
 const arimo = Arimo({
   variable: "--font-arimo",
@@ -9,7 +9,10 @@ const arimo = Arimo({
 });
 
 export const metadata: Metadata = {
-  title: "Kaiflow",
+  title: {
+    default: "kaiflow",
+    template: "%s | kaiflow",
+  },
   description: "Your AI-Powered Code Review, Analyzer, and Context Assistant",
 };
 

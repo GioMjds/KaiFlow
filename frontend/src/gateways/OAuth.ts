@@ -36,7 +36,4 @@ export const oauth = {
 	clientId(provider: Provider): string | undefined {
 		return clientIds[provider];
 	},
-	async refresh() {
-		return http.post("/refresh");
-	},
 };

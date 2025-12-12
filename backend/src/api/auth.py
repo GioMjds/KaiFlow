@@ -112,12 +112,14 @@ async def login(request: LoginRequest, response: Response, req: Request, session
     
     # Store refresh token in Redis
     await redis_client.setex(f"refresh:{user.id}", int(timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS).total_seconds()), refresh_token)
+
+    cookie_secure = req.url.scheme == "https"
     
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=True,
+        secure=cookie_secure,
         samesite="strict",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
@@ -126,7 +128,7 @@ async def login(request: LoginRequest, response: Response, req: Request, session
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=True,
+        secure=cookie_secure,
         samesite="strict",
         max_age=int(timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS).total_seconds())
     )
@@ -197,11 +199,13 @@ async def refresh(request: Request, response: Response):
     
     # Generate new access token
     new_access_token = create_access_token(data={"sub": user_id})
+
+    cookie_secure = request.url.scheme == "https"
     response.set_cookie(
         key="access_token",
         value=new_access_token,
         httponly=True,
-        secure=True,
+        secure=cookie_secure,
         samesite="strict",
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )

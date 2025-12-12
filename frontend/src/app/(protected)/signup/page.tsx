@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
+import Signup from "./signup";
 
 export const metadata: Metadata = {
     title: "Sign Up for Kaiflow",
     description: "Create an account to start using Kaiflow",
 }
 
-export default function Signup() {
-    return (
-        <h1>Sign Up for Kaiflow</h1>
-    )
+export default function SignupPage() {
+    return <Signup />
 }

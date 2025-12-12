@@ -21,4 +21,8 @@ export const auth = {
     async verifyUser(payload: VerifyUserDto) {
         return http.post('/verify', payload);
     },
+
+    async refresh() {
+        return http.post('/refresh');
+    }
 }

@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
+import Otp from "./otp";
 
 export const metadata: Metadata = {
     title: "Verify your Account",
 };
 
-export default function Otp() {
-    return (
-        <h1>Verify your Account</h1>
-    )
+export default function OtpPage() {
+    return <Otp />
 }

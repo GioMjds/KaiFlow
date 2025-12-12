@@ -5,10 +5,10 @@ interface States {
 }
 
 interface Actions {
-    toggleSidebar: () => void;
+    setIsSidebarOpen: (isOpen: boolean) => void;
 }
 
 export const useUIStore = create<States & Actions>((set) => ({
-    isSidebarOpen: true,
-    toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+    isSidebarOpen: false,
+    setIsSidebarOpen: (isOpen: boolean) => set({ isSidebarOpen: isOpen }),
 }));
