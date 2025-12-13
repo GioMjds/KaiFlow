@@ -12,12 +12,27 @@ type OtpFormData = {
 
 export default function Otp() {
 	const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-	const { mutateAsync: verifyUserMutateAsync, mutate: verifyUser, isPending } = useVerifyUser();
+
+	const {
+		mutateAsync: verifyUserMutateAsync,
+		mutate: verifyUser,
+		isPending,
+	} = useVerifyUser();
+
 	const searchParams = useSearchParams();
+
 	const router = useRouter();
 	const email = searchParams.get('email') || '';
 
-	const { control, handleSubmit, setValue, watch, setError, clearErrors, formState: { errors } } = useForm<OtpFormData>({
+	const {
+		control,
+		handleSubmit,
+		setValue,
+		watch,
+		setError,
+		clearErrors,
+		formState: { errors },
+	} = useForm<OtpFormData>({
 		defaultValues: {
 			otp: ['', '', '', '', '', ''],
 		},
@@ -31,7 +46,7 @@ export default function Otp() {
 		const newOtp = [...otp];
 		newOtp[index] = value.slice(-1);
 		setValue('otp', newOtp);
-		// clear form-level errors
+
 		clearErrors('root' as any);
 
 		if (value && index < 5) {
@@ -76,7 +91,10 @@ export default function Otp() {
 		const code = data.otp.join('');
 
 		if (code.length !== 6) {
-			setError('root' as any, { type: 'server', message: 'Please enter all 6 digits' });
+			setError('root' as any, {
+				type: 'server',
+				message: 'Please enter all 6 digits',
+			});
 			return;
 		}
 
@@ -85,10 +103,16 @@ export default function Otp() {
 		} catch (err: any) {
 			if (err?.fieldErrors && typeof err.fieldErrors === 'object') {
 				Object.entries(err.fieldErrors).forEach(([field, message]) => {
-					setError(field as any, { type: 'server', message: String(message) });
+					setError(field as any, {
+						type: 'server',
+						message: String(message),
+					});
 				});
 			} else {
-				setError('root' as any, { type: 'server', message: 'Invalid OTP. Please try again.' });
+				setError('root' as any, {
+					type: 'server',
+					message: 'Invalid OTP. Please try again.',
+				});
 			}
 			setValue('otp', ['', '', '', '', '', '']);
 			inputRefs.current[0]?.focus();
