@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { useThree } from '@react-three/fiber';
 import { FloatingShape } from './FloatingShape';
 
-export function ThreeDScene({ seed }: { seed?: number } = {}) {
-	const shapes: Array<{
+export function ThreeDScene({ seed, single = false, corner = 'bottom-right' }: { seed?: number; single?: boolean; corner?: 'top-left' | 'bottom-right' } = {}) {
+	const baseShapes: Array<{
 		position: [number, number, number];
 		geometry:
 			| 'box'
@@ -74,6 +74,20 @@ export function ThreeDScene({ seed }: { seed?: number } = {}) {
 			rotationSpeed: 0.009,
 		},
 	];
+
+		const singlePosition = corner === 'bottom-right' ? [3.5, -2.5, -3] : [-3.5, 2.5, -3];
+
+		const shapes = single
+			? [
+				{
+					position: singlePosition,
+					geometry: 'sphere',
+					color: '#3a3a3a',
+					scale: 6.0,
+					rotationSpeed: 0.004,
+				},
+			]
+			: baseShapes;
 	const { camera } = useThree();
 
 	const rng = useMemo(() => {
@@ -88,7 +102,39 @@ export function ThreeDScene({ seed }: { seed?: number } = {}) {
 		};
 	}, [seed]);
 
-	const randomized = useMemo(() => {
+	// explicit types to preserve the [number, number, number] tuple for position
+	type ShapeBase = {
+		position: [number, number, number];
+		geometry:
+			| 'box'
+			| 'sphere'
+			| 'octahedron'
+			| 'icosahedron'
+			| 'dodecahedron'
+			| 'tetrahedron'
+			| 'torus';
+		color: string;
+		scale: number;
+		rotationSpeed: number;
+	};
+
+	type ShapeWithFloat = ShapeBase & { floatSeed: number };
+
+	const randomized = useMemo<ShapeWithFloat[]>(() => {
+		// If rendering a single, fixed sphere, preserve its supplied position
+		if (single) {
+			return shapes.map((s) => {
+				const floatSeed = Math.floor(rng() * 1_000_000_000);
+				return {
+					...s,
+					// keep position as-is for single mode
+					position: s.position as [number, number, number],
+					floatSeed,
+					scale: +(s.scale).toFixed(3),
+					rotationSpeed: +(s.rotationSpeed).toFixed(6),
+				} as ShapeWithFloat;
+			});
+		}
 		const isPerspective = (camera as any).isPerspectiveCamera || ('fov' in camera && 'aspect' in camera);
 		const fovDeg = isPerspective ? (camera as any).fov : 50;
 		const aspect = (camera as any).aspect ?? (typeof window !== 'undefined' ? window.innerWidth / window.innerHeight : 1);
@@ -120,9 +166,9 @@ export function ThreeDScene({ seed }: { seed?: number } = {}) {
 				scale: +(s.scale * scaleJitter).toFixed(3),
 				rotationSpeed: +(s.rotationSpeed * rotationScale).toFixed(6),
 				floatSeed,
-			} as (typeof s & { floatSeed: number });
+			} as ShapeWithFloat;
 		});
-	}, [camera, seed]);
+	}, [camera, seed, single]);
 
     return (
         <>

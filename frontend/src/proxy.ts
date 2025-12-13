@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "./gateways/Auth";
 
 export async function proxy(req: NextRequest) {
-    const { pathname } = req.nextUrl;
+    const { pathname, searchParams } = req.nextUrl;
 
     // Skip Next.js internals and obvious static assets
     if (
@@ -22,6 +22,27 @@ export async function proxy(req: NextRequest) {
     const accessToken = req.cookies.get("access_token")?.value;
     const refreshToken = req.cookies.get("refresh_token")?.value;
     const isAuthenticated = Boolean(accessToken);
+
+    // Handling for OTP page - requires email param
+    if (pathname === '/otp') {
+        const email = searchParams.get('email');
+
+        // If authenticated, redirect to home
+        if (isAuthenticated) {
+            const url = req.nextUrl.clone();
+            url.pathname = "/";
+            return NextResponse.redirect(url);
+        }
+
+        // If no email param, redirect to signup
+        if (!email) {
+            const url = req.nextUrl.clone();
+            url.pathname = "/signup";
+            return NextResponse.redirect
+        }
+
+        return NextResponse.next();
+    }
 
     // Logged-in users should not see auth pages
     if (isAuthPage && isAuthenticated) {

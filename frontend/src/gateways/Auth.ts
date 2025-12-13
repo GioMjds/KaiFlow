@@ -22,6 +22,10 @@ export const auth = {
         return http.post('/verify', payload);
     },
 
+    async resendOtp(email: string) {
+        return http.post('/resend', { email })
+    },
+
     async refresh() {
         return http.post('/refresh');
     }

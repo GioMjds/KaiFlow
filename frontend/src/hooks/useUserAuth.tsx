@@ -10,48 +10,74 @@ export const useLogin = () => {
 
     return useMutation({
         mutationFn: async (payload: LoginUserDto) => auth.login(payload),
-        onSuccess: () => {
-            console.log("Login successful");
+        onSuccess: (data) => {
+            console.log(data.message);
             router.push('/');
         },
-        onError: (error: any) => {
-            console.error("Error during login:", error);
+        onError: (error) => {
+            console.error(error.message);
         }
     });
 };
 
 export const useLogout = () => {
+    const router = useRouter();
+    
     return useMutation({
         mutationFn: async () => auth.logout(),
-        onSuccess: () => {
-            console.log("Logout successful");
+        onSuccess: (data) => {
+            console.log(data.message);
+            router.push('/login');
         },
-        onError: (error: any) => {
-            console.error("Error during logout:", error);
+        onError: (error) => {
+            console.error(error.message);
         }
     });
 };
 
 export const useSignup = () => {
+    const router = useRouter();
+    
     return useMutation({
         mutationFn: async (payload: SignupUserDto) => auth.signup(payload),
-        onSuccess: () => {
-            console.log("Signup successful");
+        onSuccess: (data, variables) => {
+            console.log(data.message);
+            router.push(`/otp?email=${encodeURIComponent(variables.email)}`);
         },
-        onError: (error: any) => {
-            console.error("Error during signup:", error);
+        onError: (error) => {
+            console.error(error.message);
         }
     });
 };
 
 export const useVerifyUser = () => {
+    const router = useRouter();
+
     return useMutation({
-        mutationFn: async (payload: VerifyUserDto) => auth.verifyUser(payload),
-        onSuccess: () => {
-            console.log("User verification successful");
+        mutationFn: async (payload: VerifyUserDto) => {
+            if (!payload.email) {
+                throw new Error("Email is required for verification.");
+            }
+            return auth.verifyUser(payload);
         },
-        onError: (error: any) => {
-            console.error("Error during user verification:", error);
+        onSuccess: (data) => {
+            console.log(data.message);
+            router.push('/');
+        },
+        onError: (error) => {
+            console.error(error.message);
+        }
+    });
+};
+
+export const useResendOtp = () => {
+    return useMutation({
+        mutationFn: async (email: string) => auth.resendOtp(email),
+        onSuccess: (data) => {
+            console.log(data.message);
+        },
+        onError: (error) => {
+            console.error(error.message);
         }
     });
 };

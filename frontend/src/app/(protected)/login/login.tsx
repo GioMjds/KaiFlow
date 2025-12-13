@@ -7,12 +7,7 @@ import { useLogin } from '@/hooks/useUserAuth';
 import { Canvas } from '@react-three/fiber';
 import { ThreeDScene } from '@/components/three/3DScene';
 import Link from 'next/link';
-
-type LoginFormData = {
-	email: string;
-	password: string;
-	rememberMe?: boolean;
-};
+import { LoginUserDto } from '@/types/dto/login-user.dto';
 
 export default function Login() {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -20,23 +15,34 @@ export default function Login() {
 	const {
 		register,
 		handleSubmit,
+		setError,
 		formState: { errors },
-	} = useForm<LoginFormData>({
+	} = useForm<LoginUserDto>({
 		mode: 'onSubmit',
 		defaultValues: {
 			email: '',
 			password: '',
-			rememberMe: false,
 		},
 	});
 
 	const loginMutation = useLogin();
 
-	const onSubmit = async (data: LoginFormData) => {
-		await loginMutation.mutateAsync({
-			email: data.email,
-			password: data.password,
-		});
+	const onSubmit = async (data: LoginUserDto) => {
+		try {
+			await loginMutation.mutateAsync({
+				email: data.email,
+				password: data.password,
+			});
+		} catch (err: any) {
+			if (err?.fieldErrors && typeof err.fieldErrors === 'object') {
+				Object.entries(err.fieldErrors).forEach(([field, message]) => {
+					setError(field as keyof LoginUserDto, { type: 'server', message: String(message) });
+				});
+			} else {
+				const msg = err?.message || 'Login failed';
+				setError('root' as any, { type: 'server', message: String(msg) });
+			}
+		}
 	};
 
 	return (
@@ -199,17 +205,7 @@ export default function Login() {
 						</div>
 
 						{/* Remember Me & Forgot Password */}
-						<div className="flex items-center justify-between">
-							<label className="flex items-center gap-2 cursor-pointer">
-								<input
-									{...register('rememberMe')}
-									type="checkbox"
-									className="w-4 h-4 rounded border-border bg-primary accent-[#4a7fff] cursor-pointer"
-								/>
-								<span className="text-sm text-foreground">
-									Remember me
-								</span>
-							</label>
+						<div className="flex items-center justify-end">
 							<Link
 								href="/forgot"
 								className="text-sm text-[#4a7fff] hover:underline"
@@ -231,16 +227,15 @@ export default function Login() {
 								: 'Login'}
 						</motion.button>
 
+						{(errors as any)['root']?.message && (
+							<p className="mt-2 text-sm text-red-500 text-center">{(errors as any)['root']?.message}</p>
+						)}
+
 						{/* Divider */}
-						<div className="relative my-6">
-							<div className="absolute inset-0 flex items-center">
-								<div className="w-full border-t border-border"></div>
-							</div>
-							<div className="relative flex justify-center text-sm">
-								<span className="px-4 text-muted">
-									OR
-								</span>
-							</div>
+						<div className="flex items-center mt-2">
+							<div className="flex-1 border-t border-border" />
+							<span className="px-4 text-sm text-muted">OR</span>
+							<div className="flex-1 border-t border-border" />
 						</div>
 
 						{/* Social Login Buttons */}
@@ -289,6 +284,19 @@ export default function Login() {
 								Log in with Google
 							</motion.button>
 						</div>
+
+						{/* Signup Link */}
+						<div className="text-center mt-6">
+							<p className="text-sm text-muted">
+								Don't have an account?{' '}
+								<Link
+									href="/signup"
+									className="text-[#4a7fff] hover:underline font-medium"
+								>
+									Sign up
+								</Link>
+							</p>
+						</div>
 					</motion.form>
 				</div>
 			</motion.div>
@@ -304,7 +312,7 @@ export default function Login() {
 					camera={{ position: [0, 0, 8], fov: 50 }}
 					style={{ background: 'transparent' }}
 				>
-					<ThreeDScene />
+					<ThreeDScene single corner="bottom-right" />
 				</Canvas>
 			</motion.div>
 		</div>

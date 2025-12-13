@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Signup from "./signup";
 
 export const metadata: Metadata = {
-    title: "Sign Up for Kaiflow",
+    title: "Create New Account",
     description: "Create an account to start using Kaiflow",
 }
 

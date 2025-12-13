@@ -43,6 +43,8 @@ export function FloatingShape({
 		switch (geometry) {
 			case 'box':
 				return new THREE.BoxGeometry(1, 1, 1);
+			case 'sphere':
+				return new THREE.SphereGeometry(0.8, 32, 32);
 			case 'octahedron':
 				return new THREE.OctahedronGeometry(0.7);
 			case 'icosahedron':

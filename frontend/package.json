@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@gsap/react": "^2.1.2",
     "@react-oauth/google": "^0.12.2",
     "@react-three/drei": "^10.7.7",
